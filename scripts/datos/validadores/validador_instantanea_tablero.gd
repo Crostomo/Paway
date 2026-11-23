@@ -35,7 +35,7 @@ static func validar(
     estado_temporal.ultima_casilla = instantanea.ultima_casilla
     estado_temporal.estado = instantanea.estado
     estado_temporal.movimientos_realizados = instantanea.movimientos_realizados
-    estado_temporal.movimientos_deshechados = instantanea.movimientos_deshechados
+    estado_temporal.movimientos_deshechos = instantanea.movimientos_deshechos
     estado_temporal.movimientos_efectivos = instantanea.movimientos_efectivos
 
     var resultado_estado := TipoValidadorEstado.validar(estado_temporal)

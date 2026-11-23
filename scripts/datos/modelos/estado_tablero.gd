@@ -36,4 +36,3 @@ var estado: String = ESTADO_PREPARADA
 var movimientos_realizados: int = 0
 var movimientos_deshechos: int = 0
 var movimientos_efectivos: int = 0
-
