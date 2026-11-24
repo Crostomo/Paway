@@ -38,7 +38,7 @@ static func serializar(
 		"fecha_completado": registro.fecha_completado,
 		"tiempo_segundos": registro.tiempo_segundos,
 		"movimientos_realizados": registro.movimientos_realizados,
-		"movimientos_deshechos": registro.movimientos_deshechos,
+		"movimientos_deshechados": registro.movimientos_deshechados,
 		"movimientos_efectivos": registro.movimientos_efectivos,
 		"pistas_utilizadas": registro.pistas_utilizadas,
 		"favorito": registro.favorito
@@ -76,7 +76,7 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 		"filas",
 		"columnas",
 		"movimientos_realizados",
-		"movimientos_deshechos",
+		"movimientos_deshechados",
 		"movimientos_efectivos",
         "pistas_utilizadas"
 	]
@@ -97,7 +97,7 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 	if not datos.has("recorrido") or not (datos["recorrido"] is Array):
 		return _error("RECORRIDO_NO_VALIDO")
 
-	var registro := TipoRegistroBiblioteca.new()
+	var registro = TipoRegistroBiblioteca.new()
 
 	registro.version_formato = VERSION_FORMATO
 	registro.id_recorrido = datos["id_recorrido"]
@@ -108,7 +108,7 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 	registro.fecha_completado = datos["fecha_completado"]
 	registro.tiempo_segundos = float(datos["tiempo_segundos"])
 	registro.movimientos_realizados = datos["movimientos_realizados"]
-	registro.movimientos_deshechos = datos["movimientos_deshechos"]
+	registro.movimientos_deshechados = datos["movimientos_deshechados"]
 	registro.movimientos_efectivos = datos["movimientos_efectivos"]
 	registro.pistas_utilizadas = datos["pistas_utilizadas"]
 	registro.favorito = datos["favorito"]
@@ -152,7 +152,7 @@ static func _validar_registro(
 	if registro.tipo_partida not in ["normal", "personalizada", "reto"]:
 		return false
 
-	if registro.tipo_partida == "reto" and registro.id_reto.is_empty():
+	if registro.tipo_partida == "reto" and registro.id_reto.strip_edges().is_empty():
 		return false
 
 	if registro.filas < 5 or registro.columnas < 5:
@@ -164,7 +164,7 @@ static func _validar_registro(
 	if registro.recorrido.size() != registro.filas * registro.columnas:
 		return false
 
-	if registro.fecha_completado.is_empty():
+	if registro.fecha_completado.strip_edges().is_empty():
 		return false
 
 	if registro.tiempo_segundos < 0:
@@ -173,7 +173,7 @@ static func _validar_registro(
 	if registro.movimientos_realizados < 0:
 		return false
 
-	if registro.movimientos_deshechos < 0:
+	if registro.movimientos_deshechados < 0:
 		return false
 
 	if registro.movimientos_efectivos < 0:
@@ -181,7 +181,7 @@ static func _validar_registro(
 
 	if registro.movimientos_efectivos != (
 		registro.movimientos_realizados
-		- registro.movimientos_deshechos
+		- registro.movimientos_deshechados
 	):
 		return false
 

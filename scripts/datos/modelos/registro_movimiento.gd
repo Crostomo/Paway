@@ -14,5 +14,3 @@ var destino: Vector2i = Vector2i(-1, -1)
 # Indica si se trata del primer movimiento.
 # En ese caso no existe una casilla de origen.
 var es_primer_movimiento: bool = false
-
-

@@ -119,7 +119,7 @@ static func _validar(
 	if resumen.tipo_partida not in tipos_validos:
 		return false
 
-	if resumen.tipo_partida == "reto" and resumen.id_reto.is_empty():
+	if resumen.tipo_partida == "reto" and resumen.id_reto.strip_edges().is_empty():
 		return false
 
 	var estados_validos: Array[String] = [

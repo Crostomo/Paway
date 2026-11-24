@@ -7,13 +7,29 @@ const TIPO_NORMAL: String = "normal"
 const TIPO_PERSONALIZADA: String = "personalizada"
 const TIPO_RETO: String = "reto"
 
+# Geometrias disponibles.
+const GEOMETRIA_RECTANGULAR: String = "rectangular"
+const VERSION_GEOMETRIA_RECTANGULAR: int = 1
+
+# Perfiles de reglas de movimiento.
+const REGLAS_RECTANGULAR_SALTOS_3_2: String = "rectangular_saltos_3_2"
+const VERSION_REGLAS_RECTANGULAR_SALTOS_3_2: int = 1
+
 # Identificador unico de la partida.
 var id_partida: String = ""
 
 # Tipo de partida.
 var tipo_partida: String = TIPO_NORMAL
 
-# Dimensiones del tablero.
+# Identificacion de la geometria.
+var id_geometria: String = GEOMETRIA_RECTANGULAR
+var version_geometria: int = VERSION_GEOMETRIA_RECTANGULAR
+
+# Identificacion de las reglas de movimiento.
+var id_reglas_movimiento: String = REGLAS_RECTANGULAR_SALTOS_3_2
+var version_reglas_movimiento: int = VERSION_REGLAS_RECTANGULAR_SALTOS_3_2
+
+# Dimensiones del tablero rectangular.
 var filas: int = 0
 var columnas: int = 0
 

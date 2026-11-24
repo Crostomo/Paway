@@ -30,7 +30,7 @@ static func serializar(
 		"partidas_completadas": estadisticas.partidas_completadas,
 		"intentos_no_completados": estadisticas.intentos_no_completados,
 		"movimientos_realizados": estadisticas.movimientos_realizados,
-		"movimientos_deshechos": estadisticas.movimientos_deshechos,
+		"movimientos_deshechados": estadisticas.movimientos_deshechados,
 		"movimientos_efectivos": estadisticas.movimientos_efectivos,
 		"tiempo_total_segundos": estadisticas.tiempo_total_segundos,
 		"mayor_tablero_no_completado": estadisticas.mayor_tablero_no_completado,
@@ -61,7 +61,7 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 		"partidas_completadas",
 		"intentos_no_completados",
 		"movimientos_realizados",
-		"movimientos_deshechos",
+		"movimientos_deshechados",
 		"movimientos_efectivos",
 		"mayor_tablero_no_completado",
         "pistas_utilizadas"
@@ -92,13 +92,13 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 	if not datos.has("ultima_actualizacion") or not (datos["ultima_actualizacion"] is String):
 		return _error("FECHA_NO_VALIDA")
 
-	var estadisticas := TipoRegistroEstadisticas.new()
+	var estadisticas = TipoRegistroEstadisticas.new()
 
 	estadisticas.version_formato = VERSION_FORMATO
 	estadisticas.partidas_completadas = datos["partidas_completadas"]
 	estadisticas.intentos_no_completados = datos["intentos_no_completados"]
 	estadisticas.movimientos_realizados = datos["movimientos_realizados"]
-	estadisticas.movimientos_deshechos = datos["movimientos_deshechos"]
+	estadisticas.movimientos_deshechados = datos["movimientos_deshechados"]
 	estadisticas.movimientos_efectivos = datos["movimientos_efectivos"]
 	estadisticas.tiempo_total_segundos = float(datos["tiempo_total_segundos"])
 	estadisticas.mayor_tablero_no_completado = datos["mayor_tablero_no_completado"]
@@ -134,7 +134,7 @@ static func _validar_valores(
 	if estadisticas.movimientos_realizados < 0:
 		return false
 
-	if estadisticas.movimientos_deshechos < 0:
+	if estadisticas.movimientos_deshechados < 0:
 		return false
 
 	if estadisticas.movimientos_efectivos < 0:
@@ -142,7 +142,7 @@ static func _validar_valores(
 
 	if estadisticas.movimientos_efectivos != (
 		estadisticas.movimientos_realizados
-		- estadisticas.movimientos_deshechos
+		- estadisticas.movimientos_deshechados
 	):
 		return false
 
@@ -154,6 +154,22 @@ static func _validar_valores(
 
 	if estadisticas.pistas_utilizadas < 0:
 		return false
+
+	if estadisticas.ultima_actualizacion.is_empty():
+		return false
+
+	for clave in estadisticas.mejores_tiempos:
+		if not (clave is String) or clave.is_empty():
+			return false
+
+		var tiempo: Variant = estadisticas.mejores_tiempos[clave]
+
+		if not _es_numero(tiempo) or tiempo < 0:
+			return false
+
+	for registro in estadisticas.historial_partidas:
+		if not (registro is Dictionary):
+			return false
 
 	return true
 

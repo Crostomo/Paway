@@ -2,6 +2,10 @@
 class_name ResumenPartida
 extends RefCounted
 
+const TipoConfiguracionPartida = preload(
+    "res://scripts/datos/modelos/configuracion_partida.gd"
+)
+
 # Estados posibles de una partida.
 const ESTADO_PREPARADA: String = "preparada"
 const ESTADO_ACTIVA: String = "activa"
@@ -14,7 +18,7 @@ const ESTADO_ABANDONADA: String = "abandonada"
 var id_partida: String = ""
 
 # Tipo de partida.
-var tipo_partida: String = ConfiguracionPartida.TIPO_NORMAL
+var tipo_partida: String = TipoConfiguracionPartida.TIPO_NORMAL
 
 # Estado actual de la partida.
 var estado: String = ESTADO_PREPARADA

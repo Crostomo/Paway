@@ -12,35 +12,35 @@ const TipoResultadoOperacion = preload(
 
 
 static func validar(filas: int, columnas: int) -> TipoResultadoOperacion:
-    if filas < MINIMO_FILAS:
-        return TipoResultadoOperacion.crear_error(
-            TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-            {"motivo": "FILAS_INSUFICIENTES"}
-        )
+	if filas < MINIMO_FILAS:
+		return TipoResultadoOperacion.crear_error(
+			TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
+			{"motivo": "FILAS_INSUFICIENTES"}
+		)
 
-    if columnas < MINIMO_COLUMNAS:
-        return TipoResultadoOperacion.crear_error(
-            TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-            {"motivo": "COLUMNAS_INSUFICIENTES"}
-        )
+	if columnas < MINIMO_COLUMNAS:
+		return TipoResultadoOperacion.crear_error(
+			TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
+			{"motivo": "COLUMNAS_INSUFICIENTES"}
+		)
 
-    var total_casillas: int = filas * columnas
+	var total_casillas: int = filas * columnas
 
-    if total_casillas > MAXIMO_CASILLAS:
-        return TipoResultadoOperacion.crear_error(
-            TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-            {
-                "motivo": "DEMASIADAS_CASILLAS",
-                "total_casillas": total_casillas,
-                "maximo_permitido": MAXIMO_CASILLAS
-            }
-        )
+	if total_casillas > MAXIMO_CASILLAS:
+		return TipoResultadoOperacion.crear_error(
+			TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
+			{
+				"motivo": "DEMASIADAS_CASILLAS",
+				"total_casillas": total_casillas,
+				"maximo_permitido": MAXIMO_CASILLAS
+			}
+		)
 
-    return TipoResultadoOperacion.crear_correcto(
-        TipoResultadoOperacion.CODIGO_CORRECTO,
-        {
-            "filas": filas,
-            "columnas": columnas,
-            "total_casillas": total_casillas
-        }
-    )
+	return TipoResultadoOperacion.crear_correcto(
+		TipoResultadoOperacion.CODIGO_CORRECTO,
+		{
+			"filas": filas,
+			"columnas": columnas,
+			"total_casillas": total_casillas
+		}
+	)

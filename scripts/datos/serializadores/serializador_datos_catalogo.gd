@@ -210,8 +210,11 @@ static func _validar(catalogo: TipoDatosCatalogo) -> bool:
 	if catalogo.cobertura_completa:
 		if catalogo.total_inicios <= 0:
 			return false
-
+			
 		if catalogo.inicios_comprobados != catalogo.total_inicios:
+			return false
+
+		if catalogo.certificacion != TipoResultadoAnalisis.CERTIFICACION_COBERTURA_COMPLETA:
 			return false
 
 	var certificaciones: Array[String] = [

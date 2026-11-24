@@ -68,6 +68,7 @@ static func ejecutar() -> bool:
 	instantanea.movimientos_efectivos = 3
 
 	var resultado_serializacion = TipoSerializador.serializar(instantanea)
+	
 	if resultado_serializacion == null:
 		push_error("SerializadorInstantaneaTablero.serializar() ha devuelto null.")
 		return false
