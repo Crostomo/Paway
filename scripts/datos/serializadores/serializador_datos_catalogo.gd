@@ -2,7 +2,13 @@
 class_name SerializadorDatosCatalogo
 extends RefCounted
 
-const VERSION_FORMATO: int = 1
+const VERSION_FORMATO: int = 2
+
+const GEOMETRIA_RECTANGULAR: String = "rectangular"
+const VERSION_GEOMETRIA_RECTANGULAR: int = 1
+
+const REGLAS_RECTANGULAR_SALTOS_3_2: String = "rectangular_saltos_3_2"
+const VERSION_REGLAS_RECTANGULAR_SALTOS_3_2: int = 1
 
 const TipoDatosCatalogo = preload(
     "res://scripts/datos/modelos/datos_catalogo.gd"
@@ -16,7 +22,7 @@ const TipoResultadoAnalisis = preload(
 
 
 static func serializar(
-	catalogo: TipoDatosCatalogo
+		catalogo: TipoDatosCatalogo
 ) -> TipoResultadoOperacion:
 
 	if not _validar(catalogo):
@@ -40,7 +46,10 @@ static func serializar(
 
 	var datos: Dictionary = {
 		"version_formato": VERSION_FORMATO,
-		"version_reglas": catalogo.version_reglas,
+		"id_geometria": catalogo.id_geometria,
+		"version_geometria": catalogo.version_geometria,
+		"id_reglas_movimiento": catalogo.id_reglas_movimiento,
+		"version_reglas_movimiento": catalogo.version_reglas_movimiento,
 		"id_tablero": catalogo.id_tablero,
 		"filas": catalogo.filas,
 		"columnas": catalogo.columnas,
@@ -78,6 +87,8 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 		return _error("VERSION_FORMATO_NO_COMPATIBLE")
 
 	var campos_texto: Array[String] = [
+		"id_geometria",
+		"id_reglas_movimiento",
 		"id_tablero",
 		"certificacion",
 		"tipo_recuento",
@@ -90,7 +101,8 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 			return _error("CAMPO_TEXTO_NO_VALIDO", {"campo": campo})
 
 	var campos_enteros: Array[String] = [
-		"version_reglas",
+		"version_geometria",
+		"version_reglas_movimiento",
 		"filas",
 		"columnas",
 		"inicios_comprobados",
@@ -128,7 +140,10 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 
 	var catalogo := TipoDatosCatalogo.new()
 
-	catalogo.version_reglas = datos["version_reglas"]
+	catalogo.id_geometria = datos["id_geometria"]
+	catalogo.version_geometria = datos["version_geometria"]
+	catalogo.id_reglas_movimiento = datos["id_reglas_movimiento"]
+	catalogo.version_reglas_movimiento = datos["version_reglas_movimiento"]
 	catalogo.id_tablero = datos["id_tablero"]
 	catalogo.filas = datos["filas"]
 	catalogo.columnas = datos["columnas"]
@@ -186,7 +201,16 @@ static func _validar(catalogo: TipoDatosCatalogo) -> bool:
 	if catalogo == null:
 		return false
 
-	if catalogo.version_reglas < 1:
+	if catalogo.id_geometria != GEOMETRIA_RECTANGULAR:
+		return false
+
+	if catalogo.version_geometria != VERSION_GEOMETRIA_RECTANGULAR:
+		return false
+
+	if catalogo.id_reglas_movimiento != REGLAS_RECTANGULAR_SALTOS_3_2:
+		return false
+
+	if catalogo.version_reglas_movimiento != VERSION_REGLAS_RECTANGULAR_SALTOS_3_2:
 		return false
 
 	if catalogo.id_tablero.strip_edges().is_empty():
@@ -210,7 +234,7 @@ static func _validar(catalogo: TipoDatosCatalogo) -> bool:
 	if catalogo.cobertura_completa:
 		if catalogo.total_inicios <= 0:
 			return false
-			
+
 		if catalogo.inicios_comprobados != catalogo.total_inicios:
 			return false
 
@@ -329,8 +353,8 @@ static func _es_numero(valor: Variant) -> bool:
 
 
 static func _error(
-	motivo: String,
-	detalles: Dictionary = {}
+		motivo: String,
+		detalles: Dictionary = {}
 ) -> TipoResultadoOperacion:
 
 	var datos_error: Dictionary = {"motivo": motivo}
@@ -340,5 +364,3 @@ static func _error(
 		TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
 		datos_error
 	)
-
-	pass

@@ -5,11 +5,11 @@ extends RefCounted
 # Numero asignado a la casilla en este movimiento.
 var numero: int = 0
 
-# Coordenadas de origen y destino.
-# Vector2i.x representa la columna.
-# Vector2i.y representa la fila.
-var origen: Vector2i = Vector2i(-1, -1)
-var destino: Vector2i = Vector2i(-1, -1)
+# Identificadores logicos de las casillas.
+# Los IDs se interpretan dentro de la geometria del tablero.
+# -1 indica que no existe una casilla de origen.
+var origen_id: int = -1
+var destino_id: int = -1
 
 # Indica si se trata del primer movimiento.
 # En ese caso no existe una casilla de origen.

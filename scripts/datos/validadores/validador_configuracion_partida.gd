@@ -3,111 +3,129 @@ class_name ValidadorConfiguracionPartida
 extends RefCounted
 
 const TipoConfiguracionPartida = preload(
-    "res://scripts/datos/modelos/configuracion_partida.gd"
+        "res://scripts/datos/modelos/configuracion_partida.gd"
 )
 const TipoResultadoOperacion = preload(
-    "res://scripts/datos/modelos/resultado_operacion.gd"
+        "res://scripts/datos/modelos/resultado_operacion.gd"
 )
 const TipoValidadorDimensiones = preload(
-    "res://scripts/datos/validadores/validador_dimensiones_tablero.gd"
+        "res://scripts/datos/validadores/validador_dimensiones_tablero.gd"
+)
+const TipoGeometriaTablero = preload(
+        "res://scripts/datos/modelos/geometria_tablero.gd"
+)
+const TipoReglasMovimiento = preload(
+        "res://scripts/datos/modelos/reglas_movimiento.gd"
 )
 
 
 static func validar(
-	configuracion: TipoConfiguracionPartida
+		configuracion: TipoConfiguracionPartida
 ) -> TipoResultadoOperacion:
 
-	if configuracion == null:
-		return TipoResultadoOperacion.crear_error(
-			TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-			{"motivo": "CONFIGURACION_NULA"}
+		if configuracion == null:
+				return _error("CONFIGURACION_NULA")
+
+		# Comprobar la geometria.
+		if configuracion.id_geometria != TipoGeometriaTablero.GEOMETRIA_RECTANGULAR:
+				return _error("GEOMETRIA_NO_COMPATIBLE")
+
+		if configuracion.version_geometria != TipoGeometriaTablero.VERSION_RECTANGULAR:
+				return _error("VERSION_GEOMETRIA_NO_COMPATIBLE")
+
+		# Comprobar las reglas de movimiento.
+		if configuracion.id_reglas_movimiento != TipoReglasMovimiento.ID_REGLAS_RECTANGULAR:
+				return _error("REGLAS_MOVIMIENTO_NO_COMPATIBLES")
+
+		if configuracion.version_reglas_movimiento != TipoReglasMovimiento.VERSION_REGLAS_RECTANGULAR:
+				return _error("VERSION_REGLAS_NO_COMPATIBLE")
+
+		# Comprobar dimensiones.
+		var resultado_dimensiones := TipoValidadorDimensiones.validar(
+				configuracion.filas,
+				configuracion.columnas
 		)
 
-	var resultado_dimensiones := TipoValidadorDimensiones.validar(
-		configuracion.filas,
-		configuracion.columnas
-	)
+		if not resultado_dimensiones.aceptado:
+				return resultado_dimensiones
 
-	if not resultado_dimensiones.aceptado:
-		return resultado_dimensiones
+		# Construir la geometria del tablero.
+		var geometria = TipoGeometriaTablero.new()
 
-	if not [
-		TipoConfiguracionPartida.TIPO_NORMAL,
-		TipoConfiguracionPartida.TIPO_PERSONALIZADA,
-		TipoConfiguracionPartida.TIPO_RETO
-	].has(configuracion.tipo_partida):
-		return TipoResultadoOperacion.crear_error(
-			TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-			{"motivo": "TIPO_PARTIDA_NO_VALIDO"}
+		if not geometria.configurar_rectangular(
+				configuracion.filas,
+				configuracion.columnas
+		):
+				return _error("GEOMETRIA_NO_VALIDA")
+
+		# Comprobar tipo de partida.
+		if not [
+				TipoConfiguracionPartida.TIPO_NORMAL,
+				TipoConfiguracionPartida.TIPO_PERSONALIZADA,
+				TipoConfiguracionPartida.TIPO_RETO
+		].has(configuracion.tipo_partida):
+				return _error("TIPO_PARTIDA_NO_VALIDO")
+
+		# Comprobar identificador del reto.
+		if configuracion.tipo_partida == TipoConfiguracionPartida.TIPO_RETO:
+				if configuracion.id_reto.strip_edges().is_empty():
+						return _error("RETO_SIN_IDENTIFICADOR")
+		elif not configuracion.id_reto.strip_edges().is_empty():
+				return _error("IDENTIFICADOR_RETO_NO_CORRESPONDE")
+
+		# Comprobar restricciones de inicio.
+		var resultado_inicio := _validar_restricciones(
+				configuracion.inicio_permitido,
+				geometria,
+                "INICIO"
 		)
 
-	if configuracion.tipo_partida == TipoConfiguracionPartida.TIPO_RETO:
-		if configuracion.id_reto.strip_edges().is_empty():
-			return TipoResultadoOperacion.crear_error(
-				TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-				{"motivo": "RETO_SIN_IDENTIFICADOR"}
-			)
-	elif not configuracion.id_reto.strip_edges().is_empty():
-		return TipoResultadoOperacion.crear_error(
-			TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-			{"motivo": "IDENTIFICADOR_RETO_NO_CORRESPONDE"}
+		if not resultado_inicio.aceptado:
+				return resultado_inicio
+
+		# Comprobar restricciones de final.
+		var resultado_final := _validar_restricciones(
+				configuracion.final_permitido,
+				geometria,
+                "FINAL"
 		)
 
-	var total_casillas: int = configuracion.filas * configuracion.columnas
+		if not resultado_final.aceptado:
+				return resultado_final
 
-	var resultado_inicio := _validar_restricciones(
-		configuracion.inicio_permitido,
-		configuracion.filas,
-		configuracion.columnas,
-        "INICIO"
-	)
-
-	if not resultado_inicio.aceptado:
-		return resultado_inicio
-
-	var resultado_final := _validar_restricciones(
-		configuracion.final_permitido,
-		configuracion.filas,
-		configuracion.columnas,
-        "FINAL"
-	)
-
-	if not resultado_final.aceptado:
-		return resultado_final
-
-	return TipoResultadoOperacion.crear_correcto(
-		TipoResultadoOperacion.CODIGO_CORRECTO,
-		{"total_casillas": total_casillas}
-	)
+		return TipoResultadoOperacion.crear_correcto(
+				TipoResultadoOperacion.CODIGO_CORRECTO,
+				{"total_casillas": geometria.obtener_total_casillas()}
+		)
 
 
 static func _validar_restricciones(
-	casillas: Array[Vector2i],
-	filas: int,
-	columnas: int,
-	tipo: String
+		casillas: Array[int],
+		geometria,
+		tipo: String
 ) -> TipoResultadoOperacion:
 
-	var casillas_vistas: Dictionary = {}
+		var casillas_vistas: Dictionary = {}
 
-	for casilla in casillas:
-		var columna: int = casilla.x
-		var fila: int = casilla.y
+		for id_casilla: int in casillas:
 
-		if fila < 0 or fila >= filas or columna < 0 or columna >= columnas:
-			return TipoResultadoOperacion.crear_error(
+				# Comprobar que el ID pertenece al tablero.
+				if not geometria.contiene_id_casilla(id_casilla):
+						return _error(tipo + "_FUERA_TABLERO")
+
+				# Comprobar que no hay IDs repetidos.
+				if casillas_vistas.has(id_casilla):
+						return _error(tipo + "_DUPLICADO")
+
+				casillas_vistas[id_casilla] = true
+
+		return TipoResultadoOperacion.crear_correcto(
+				TipoResultadoOperacion.CODIGO_CORRECTO
+		)
+
+
+static func _error(motivo: String) -> TipoResultadoOperacion:
+		return TipoResultadoOperacion.crear_error(
 				TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-				{"motivo": tipo + "_FUERA_TABLERO"}
-			)
-
-		if casillas_vistas.has(casilla):
-			return TipoResultadoOperacion.crear_error(
-				TipoResultadoOperacion.CODIGO_DATOS_INVALIDOS,
-				{"motivo": tipo + "_DUPLICADO"}
-			)
-
-		casillas_vistas[casilla] = true
-
-	return TipoResultadoOperacion.crear_correcto(
-		TipoResultadoOperacion.CODIGO_CORRECTO
-	)
+				{"motivo": motivo}
+		)

@@ -33,14 +33,13 @@ var version_reglas_movimiento: int = VERSION_REGLAS_RECTANGULAR_SALTOS_3_2
 var filas: int = 0
 var columnas: int = 0
 
-# Casillas permitidas para comenzar.
-# Cada Vector2i utiliza x = columna e y = fila.
-# Una lista vacia significa que cualquier casilla esta permitida.
-var inicio_permitido: Array[Vector2i] = []
+# IDs de casillas permitidas para comenzar.
+# Una lista vacia permite comenzar desde cualquier casilla.
+var inicio_permitido: Array[int] = []
 
-# Casillas permitidas para terminar.
-# Una lista vacia significa que cualquier casilla esta permitida.
-var final_permitido: Array[Vector2i] = []
+# IDs de casillas permitidas para terminar.
+# Una lista vacia permite terminar en cualquier casilla.
+var final_permitido: Array[int] = []
 
 # Identificador del reto, si corresponde.
 # Una cadena vacia indica que no hay reto asociado.

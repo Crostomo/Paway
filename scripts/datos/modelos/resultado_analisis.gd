@@ -19,6 +19,12 @@ const RECUENTO_LIMITE_INFERIOR: String = "limite_inferior"
 var id_tablero: String = ""
 var id_problema: String = ""
 
+# Geometria y dimensiones del tablero analizado.
+var id_geometria: String = "rectangular"
+var version_geometria: int = 1
+var filas: int = 0
+var columnas: int = 0
+
 # Resultado de la certificacion.
 var certificacion: String = CERTIFICACION_PENDIENTE
 

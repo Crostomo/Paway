@@ -2,13 +2,13 @@
 class_name SerializadorResultadoAnalisis
 extends RefCounted
 
-const VERSION_FORMATO: int = 1
+const VERSION_FORMATO: int = 2
 
 const TipoResultadoAnalisis = preload(
-    "res://scripts/datos/modelos/resultado_analisis.gd"
+	"res://scripts/datos/modelos/resultado_analisis.gd"
 )
 const TipoResultadoOperacion = preload(
-    "res://scripts/datos/modelos/resultado_operacion.gd"
+	"res://scripts/datos/modelos/resultado_operacion.gd"
 )
 
 
@@ -31,6 +31,10 @@ static func serializar(
 		"version_formato": VERSION_FORMATO,
 		"id_tablero": analisis.id_tablero,
 		"id_problema": analisis.id_problema,
+		"id_geometria": analisis.id_geometria,
+		"version_geometria": analisis.version_geometria,
+		"filas": analisis.filas,
+		"columnas": analisis.columnas,
 		"certificacion": analisis.certificacion,
 		"tipo_recuento": analisis.tipo_recuento,
 		"soluciones_minimas": analisis.soluciones_minimas,
@@ -64,9 +68,10 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 	var campos_texto: Array[String] = [
 		"id_tablero",
 		"id_problema",
+		"id_geometria",
 		"certificacion",
 		"tipo_recuento",
-        "version_algoritmo"
+		"version_algoritmo"
 	]
 
 	for campo in campos_texto:
@@ -74,10 +79,13 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 			return _error("CAMPO_TEXTO_NO_VALIDO", {"campo": campo})
 
 	var campos_enteros: Array[String] = [
+		"version_geometria",
+		"filas",
+		"columnas",
 		"soluciones_minimas",
 		"soluciones_maximas",
 		"recuento_exacto",
-        "nodos_explorados"
+		"nodos_explorados"
 	]
 
 	for campo in campos_enteros:
@@ -86,7 +94,7 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 
 	var campos_booleanos: Array[String] = [
 		"analisis_completo",
-        "validacion_independiente_superada"
+		"validacion_independiente_superada"
 	]
 
 	for campo in campos_booleanos:
@@ -109,6 +117,10 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 
 	analisis.id_tablero = datos["id_tablero"]
 	analisis.id_problema = datos["id_problema"]
+	analisis.id_geometria = datos["id_geometria"]
+	analisis.version_geometria = datos["version_geometria"]
+	analisis.filas = datos["filas"]
+	analisis.columnas = datos["columnas"]
 	analisis.certificacion = datos["certificacion"]
 	analisis.tipo_recuento = datos["tipo_recuento"]
 	analisis.soluciones_minimas = datos["soluciones_minimas"]
@@ -119,7 +131,7 @@ static func deserializar(datos: Dictionary) -> TipoResultadoOperacion:
 	analisis.nodos_explorados = datos["nodos_explorados"]
 	analisis.version_algoritmo = datos["version_algoritmo"]
 	analisis.validacion_independiente_superada = datos[
-        "validacion_independiente_superada"
+		"validacion_independiente_superada"
 	]
 
 	for posicion in datos["recorrido_referencia"]:
@@ -156,6 +168,15 @@ static func _validar(
 		return false
 
 	if analisis.id_problema.is_empty():
+		return false
+
+	if analisis.id_geometria.is_empty():
+		return false
+
+	if analisis.version_geometria <= 0:
+		return false
+
+	if analisis.filas <= 0 or analisis.columnas <= 0:
 		return false
 
 	var certificaciones: Array[String] = [
@@ -227,7 +248,10 @@ static func _validar(
 			return false
 
 	for posicion in analisis.recorrido_referencia:
-		if posicion.x < 0 or posicion.y < 0:
+		if posicion.x < 0 or posicion.x >= analisis.columnas:
+			return false
+
+		if posicion.y < 0 or posicion.y >= analisis.filas:
 			return false
 
 	return true

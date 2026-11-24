@@ -2,10 +2,10 @@
 extends RefCounted
 
 const TipoResultadoAnalisis = preload(
-    "res://scripts/datos/modelos/resultado_analisis.gd"
+	"res://scripts/datos/modelos/resultado_analisis.gd"
 )
 const TipoSerializador = preload(
-    "res://scripts/datos/serializadores/serializador_resultado_analisis.gd"
+	"res://scripts/datos/serializadores/serializador_resultado_analisis.gd"
 )
 
 
@@ -17,6 +17,10 @@ static func ejecutar() -> bool:
 
 	analisis.id_tablero = "tablero_5x5"
 	analisis.id_problema = "problema_5x5_libre"
+	analisis.id_geometria = "rectangular"
+	analisis.version_geometria = 1
+	analisis.filas = 5
+	analisis.columnas = 5
 
 	analisis.certificacion = (
 		TipoResultadoAnalisis.CERTIFICACION_SOLVENCIA
@@ -59,6 +63,10 @@ static func ejecutar() -> bool:
 		resultado_serializacion.datos["datos"]
 	)
 
+	if datos_serializados["version_formato"] != 2:
+		push_error("La version del formato no es 2.")
+		return false
+
 	# Deserializacion.
 	var resultado_deserializacion = TipoSerializador.deserializar(
 		datos_serializados
@@ -82,6 +90,23 @@ static func ejecutar() -> bool:
 
 	if reconstruido.id_problema != analisis.id_problema:
 		push_error("El identificador del problema no coincide.")
+		return false
+
+	# Comprobacion de geometria.
+	if reconstruido.id_geometria != analisis.id_geometria:
+		push_error("El identificador de geometria no coincide.")
+		return false
+
+	if reconstruido.version_geometria != analisis.version_geometria:
+		push_error("La version de geometria no coincide.")
+		return false
+
+	if reconstruido.filas != analisis.filas:
+		push_error("El numero de filas no coincide.")
+		return false
+
+	if reconstruido.columnas != analisis.columnas:
+		push_error("El numero de columnas no coincide.")
 		return false
 
 	# Comprobacion de certificacion y recuento.
@@ -136,7 +161,67 @@ static func ejecutar() -> bool:
 		push_error("La validacion independiente no coincide.")
 		return false
 
-	# Comprobacion de rechazo de un recuento incoherente.
+	# Rechazo del formato 1.
+	var datos_formato_antiguo: Dictionary = datos_serializados.duplicate(true)
+	datos_formato_antiguo["version_formato"] = 1
+
+	var resultado_formato_antiguo = TipoSerializador.deserializar(
+		datos_formato_antiguo
+	)
+
+	if resultado_formato_antiguo.aceptado:
+		push_error("Se ha aceptado el formato antiguo 1.")
+		return false
+
+	# Rechazo de coordenada X fuera del tablero.
+	var datos_x_invalida: Dictionary = datos_serializados.duplicate(true)
+	datos_x_invalida["recorrido_referencia"][0]["x"] = 5
+
+	var resultado_x_invalida = TipoSerializador.deserializar(
+		datos_x_invalida
+	)
+
+	if resultado_x_invalida.aceptado:
+		push_error("Se ha aceptado una coordenada X fuera del tablero.")
+		return false
+
+	# Rechazo de coordenada Y fuera del tablero.
+	var datos_y_invalida: Dictionary = datos_serializados.duplicate(true)
+	datos_y_invalida["recorrido_referencia"][0]["y"] = 5
+
+	var resultado_y_invalida = TipoSerializador.deserializar(
+		datos_y_invalida
+	)
+
+	if resultado_y_invalida.aceptado:
+		push_error("Se ha aceptado una coordenada Y fuera del tablero.")
+		return false
+
+	# Rechazo de dimensiones no validas.
+	var datos_filas_invalidas: Dictionary = datos_serializados.duplicate(true)
+	datos_filas_invalidas["filas"] = 0
+
+	var resultado_filas_invalidas = TipoSerializador.deserializar(
+		datos_filas_invalidas
+	)
+
+	if resultado_filas_invalidas.aceptado:
+		push_error("Se han aceptado dimensiones invalidas.")
+		return false
+
+	# Rechazo de identificador de geometria vacio.
+	var datos_geometria_invalida: Dictionary = datos_serializados.duplicate(true)
+	datos_geometria_invalida["id_geometria"] = ""
+
+	var resultado_geometria_invalida = TipoSerializador.deserializar(
+		datos_geometria_invalida
+	)
+
+	if resultado_geometria_invalida.aceptado:
+		push_error("Se ha aceptado un identificador de geometria vacio.")
+		return false
+
+	# Rechazo de un recuento incoherente.
 	var datos_invalidos: Dictionary = datos_serializados.duplicate(true)
 	datos_invalidos["soluciones_maximas"] = 5
 

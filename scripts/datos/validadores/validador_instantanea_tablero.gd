@@ -2,17 +2,19 @@
 class_name ValidadorInstantaneaTablero
 extends RefCounted
 
+const VERSION_FORMATO_COMPATIBLE: int = 2
+
 const TipoInstantaneaTablero = preload(
-    "res://scripts/datos/modelos/instantanea_tablero.gd"
+	"res://scripts/datos/modelos/instantanea_tablero.gd"
 )
 const TipoEstadoTablero = preload(
-    "res://scripts/datos/modelos/estado_tablero.gd"
+	"res://scripts/datos/modelos/estado_tablero.gd"
 )
 const TipoResultadoOperacion = preload(
-    "res://scripts/datos/modelos/resultado_operacion.gd"
+	"res://scripts/datos/modelos/resultado_operacion.gd"
 )
 const TipoValidadorEstado = preload(
-    "res://scripts/datos/validadores/validador_estado_tablero.gd"
+	"res://scripts/datos/validadores/validador_estado_tablero.gd"
 )
 
 
@@ -23,33 +25,30 @@ static func validar(
 	if instantanea == null:
 		return _error("INSTANTANEA_NULA")
 
-	if instantanea.version_formato != TipoInstantaneaTablero.VERSION_FORMATO:
+	if instantanea.version_formato != VERSION_FORMATO_COMPATIBLE:
 		return _error("VERSION_FORMATO_NO_COMPATIBLE")
 
-	var estado_temporal := TipoEstadoTablero.new()
+	var estado := TipoEstadoTablero.new()
 
-	estado_temporal.filas = instantanea.filas
-	estado_temporal.columnas = instantanea.columnas
-	estado_temporal.matriz = instantanea.matriz.duplicate(true)
-	estado_temporal.historial = instantanea.historial.duplicate(true)
-	estado_temporal.ultima_casilla = instantanea.ultima_casilla
-	estado_temporal.estado = instantanea.estado
-	estado_temporal.movimientos_realizados = instantanea.movimientos_realizados
-	estado_temporal.movimientos_deshechos = instantanea.movimientos_deshechos
-	estado_temporal.movimientos_efectivos = instantanea.movimientos_efectivos
-
-	var resultado_estado := TipoValidadorEstado.validar(estado_temporal)
-
-	if not resultado_estado.aceptado:
-		return resultado_estado
-
-	return TipoResultadoOperacion.crear_correcto(
-		TipoResultadoOperacion.CODIGO_CORRECTO,
-		{
-			"filas": instantanea.filas,
-			"columnas": instantanea.columnas
-		}
+	estado.id_geometria = instantanea.id_geometria
+	estado.version_geometria = instantanea.version_geometria
+	estado.id_reglas_movimiento = instantanea.id_reglas_movimiento
+	estado.version_reglas_movimiento = (
+		instantanea.version_reglas_movimiento
 	)
+
+	estado.filas = instantanea.filas
+	estado.columnas = instantanea.columnas
+	estado.matriz = instantanea.matriz.duplicate(true)
+	estado.historial = instantanea.historial.duplicate(true)
+	estado.ultima_casilla_id = instantanea.ultima_casilla_id
+	estado.estado = instantanea.estado
+
+	estado.movimientos_realizados = instantanea.movimientos_realizados
+	estado.movimientos_deshechos = instantanea.movimientos_deshechos
+	estado.movimientos_efectivos = instantanea.movimientos_efectivos
+
+	return TipoValidadorEstado.validar(estado)
 
 
 static func _error(motivo: String) -> TipoResultadoOperacion:

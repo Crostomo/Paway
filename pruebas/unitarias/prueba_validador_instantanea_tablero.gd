@@ -77,19 +77,21 @@ static func ejecutar() -> bool:
 static func _crear_preparada() -> TipoInstantaneaTablero:
 	var instantanea := TipoInstantaneaTablero.new()
 
+	instantanea.version_formato = 2
 	instantanea.filas = 5
 	instantanea.columnas = 5
 	instantanea.estado = TipoEstadoTablero.ESTADO_PREPARADA
-	instantanea.ultima_casilla = Vector2i(-1, -1)
+	instantanea.ultima_casilla_id = -1
 
 	for fila_numero in range(5):
 		var fila: Array = []
+
 		for columna_numero in range(5):
 			fila.append(0)
+
 		instantanea.matriz.append(fila)
 
 	return instantanea
-
 
 
 static func _crear_activa() -> TipoInstantaneaTablero:
@@ -97,35 +99,35 @@ static func _crear_activa() -> TipoInstantaneaTablero:
 
 	instantanea.estado = TipoEstadoTablero.ESTADO_ACTIVA
 
-	# Primer movimiento: fila 0, columna 0.
+	# Primer movimiento: (0,0), ID 0.
 	instantanea.matriz[0][0] = 1
 
-	# Segundo movimiento: fila 3, columna 0.
+	# Segundo movimiento: (0,3), ID 15.
 	instantanea.matriz[3][0] = 2
 
-	# Tercer movimiento: fila 1, columna 2.
+	# Tercer movimiento: (2,1), ID 7.
 	instantanea.matriz[1][2] = 3
 
-	instantanea.ultima_casilla = Vector2i(2, 1)
+	instantanea.ultima_casilla_id = 7
 
 	var primero := TipoRegistroMovimiento.new()
 	primero.numero = 1
-	primero.origen = Vector2i(-1, -1)
-	primero.destino = Vector2i(0, 0)
+	primero.origen_id = -1
+	primero.destino_id = 0
 	primero.es_primer_movimiento = true
 	instantanea.historial.append(primero)
 
 	var segundo := TipoRegistroMovimiento.new()
 	segundo.numero = 2
-	segundo.origen = Vector2i(0, 0)
-	segundo.destino = Vector2i(0, 3)
+	segundo.origen_id = 0
+	segundo.destino_id = 15
 	segundo.es_primer_movimiento = false
 	instantanea.historial.append(segundo)
 
 	var tercero := TipoRegistroMovimiento.new()
 	tercero.numero = 3
-	tercero.origen = Vector2i(0, 3)
-	tercero.destino = Vector2i(2, 1)
+	tercero.origen_id = 15
+	tercero.destino_id = 7
 	tercero.es_primer_movimiento = false
 	instantanea.historial.append(tercero)
 

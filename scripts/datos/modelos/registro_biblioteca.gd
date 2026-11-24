@@ -3,7 +3,13 @@ class_name RegistroBiblioteca
 extends RefCounted
 
 # Version del formato del registro.
-var version_formato: int = 1
+var version_formato: int = 2
+
+# Identidad de la geometria y las reglas.
+var id_geometria: String = "rectangular"
+var version_geometria: int = 1
+var id_reglas_movimiento: String = "rectangular_saltos_3_2"
+var version_reglas_movimiento: int = 1
 
 # Identificacion del recorrido.
 var id_recorrido: String = ""
@@ -14,9 +20,8 @@ var id_reto: String = ""
 var filas: int = 0
 var columnas: int = 0
 
-# Recorrido completado.
-# Cada Vector2i utiliza x = columna e y = fila.
-var recorrido: Array[Vector2i] = []
+# Recorrido completado mediante identificadores estables de casilla.
+var recorrido: Array[int] = []
 
 # Datos de la partida.
 var fecha_completado: String = ""

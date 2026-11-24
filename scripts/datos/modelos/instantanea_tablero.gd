@@ -4,15 +4,30 @@ extends RefCounted
 
 # Referencia al modelo de movimiento.
 const TipoRegistroMovimiento = preload(
-    "res://scripts/datos/modelos/registro_movimiento.gd"
+	"res://scripts/datos/modelos/registro_movimiento.gd"
 )
 
-# Version del formato de la instantanea.
-const VERSION_FORMATO: int = 1
+# Nueva version del formato.
+const VERSION_FORMATO: int = 2
 
 var version_formato: int = VERSION_FORMATO
 
-# Dimensiones del tablero.
+# Identidad de geometria y reglas.
+const GEOMETRIA_RECTANGULAR: String = "rectangular"
+const VERSION_GEOMETRIA_RECTANGULAR: int = 1
+
+const REGLAS_RECTANGULAR_SALTOS_3_2: String = (
+	"rectangular_saltos_3_2"
+)
+const VERSION_REGLAS_RECTANGULAR_SALTOS_3_2: int = 1
+
+var id_geometria: String = GEOMETRIA_RECTANGULAR
+var version_geometria: int = VERSION_GEOMETRIA_RECTANGULAR
+
+var id_reglas_movimiento: String = REGLAS_RECTANGULAR_SALTOS_3_2
+var version_reglas_movimiento: int = VERSION_REGLAS_RECTANGULAR_SALTOS_3_2
+
+# Dimensiones de la representacion rectangular.
 var filas: int = 0
 var columnas: int = 0
 
@@ -23,9 +38,9 @@ var matriz: Array[Array] = []
 # Historial ordenado de movimientos.
 var historial: Array[TipoRegistroMovimiento] = []
 
-# Ultima casilla ocupada.
-# Vector2i.x = columna; Vector2i.y = fila.
-var ultima_casilla: Vector2i = Vector2i(-1, -1)
+# Identificador logico de la ultima casilla ocupada.
+# -1 indica que no existe ninguna.
+var ultima_casilla_id: int = -1
 
 # Estado del tablero.
 var estado: String = "preparada"

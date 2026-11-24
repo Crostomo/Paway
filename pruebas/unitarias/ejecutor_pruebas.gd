@@ -59,6 +59,15 @@ const PruebaValidadorConfiguracionJugador = preload(
 	"res://pruebas/unitarias/prueba_validador_configuracion_jugador.gd"
 )
 
+
+const PruebaGeometriaTablero = preload(
+	"res://pruebas/unitarias/prueba_geometria_tablero.gd"
+)
+const PruebaReglasMovimiento = preload(
+	"res://pruebas/unitarias/prueba_reglas_movimiento.gd"
+)
+
+
 func _initialize() -> void:
 	call_deferred("_ejecutar_pruebas")
 
@@ -68,7 +77,7 @@ func _ejecutar_pruebas() -> void:
 	print("       PRUEBAS UNITARIAS PAWAY")
 	print("====================================")
 
-	var total_pruebas: int = 17
+	var total_pruebas: int = 19
 	var pruebas_correctas: int = 0
 
 	if PruebaConfiguracionPartida.ejecutar():
@@ -115,10 +124,17 @@ func _ejecutar_pruebas() -> void:
 
 	if PruebaValidadorInstantanea.ejecutar():
 		pruebas_correctas += 1
+
 	if PruebaValidadorDatosProgreso.ejecutar():
 		pruebas_correctas += 1
 
 	if PruebaValidadorConfiguracionJugador.ejecutar():
+		pruebas_correctas += 1
+
+	if PruebaGeometriaTablero.ejecutar():
+		pruebas_correctas += 1
+
+	if PruebaReglasMovimiento.ejecutar():
 		pruebas_correctas += 1
 
 	print("")

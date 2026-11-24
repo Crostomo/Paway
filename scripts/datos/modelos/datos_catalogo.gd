@@ -7,8 +7,13 @@ const TipoResultadoAnalisis = preload(
     "res://scripts/datos/modelos/resultado_analisis.gd"
 )
 
-# Version de las reglas del juego.
-var version_reglas: int = 1
+# Identidad de la geometria del tablero.
+var id_geometria: String = "rectangular"
+var version_geometria: int = 1
+
+# Identidad de las reglas de movimiento.
+var id_reglas_movimiento: String = "rectangular_saltos_3_2"
+var version_reglas_movimiento: int = 1
 
 # Identidad del tablero.
 var id_tablero: String = ""

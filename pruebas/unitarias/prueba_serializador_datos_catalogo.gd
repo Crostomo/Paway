@@ -18,7 +18,11 @@ static func ejecutar() -> bool:
 
 	var catalogo = TipoDatosCatalogo.new()
 
-	catalogo.version_reglas = 1
+	catalogo.id_geometria = "rectangular"
+	catalogo.version_geometria = 1
+	catalogo.id_reglas_movimiento = "rectangular_saltos_3_2"
+	catalogo.version_reglas_movimiento = 1
+
 	catalogo.id_tablero = "tablero_5x5"
 	catalogo.filas = 5
 	catalogo.columnas = 5
@@ -76,9 +80,7 @@ static func ejecutar() -> bool:
 	catalogo.identificador_integridad = "integridad_prueba_001"
 
 	# Serializacion.
-	var resultado_serializacion = TipoSerializador.serializar(
-		catalogo
-	)
+	var resultado_serializacion = TipoSerializador.serializar(catalogo)
 
 	if resultado_serializacion == null:
 		push_error("La serializacion ha devuelto null.")
@@ -92,6 +94,11 @@ static func ejecutar() -> bool:
 	var datos_serializados: Dictionary = (
 		resultado_serializacion.datos["datos"]
 	)
+
+	# Comprobar version del formato.
+	if datos_serializados["version_formato"] != 2:
+		push_error("La version del formato no es la esperada.")
+		return false
 
 	# Deserializacion.
 	var resultado_deserializacion = TipoSerializador.deserializar(
@@ -108,6 +115,24 @@ static func ejecutar() -> bool:
 		return false
 
 	var reconstruido = resultado_deserializacion.datos["catalogo"]
+
+	# Comprobar identidad de geometria.
+	if reconstruido.id_geometria != catalogo.id_geometria:
+		push_error("El identificador de geometria no coincide.")
+		return false
+
+	if reconstruido.version_geometria != catalogo.version_geometria:
+		push_error("La version de geometria no coincide.")
+		return false
+
+	# Comprobar identidad de reglas.
+	if reconstruido.id_reglas_movimiento != catalogo.id_reglas_movimiento:
+		push_error("El identificador de reglas no coincide.")
+		return false
+
+	if reconstruido.version_reglas_movimiento != catalogo.version_reglas_movimiento:
+		push_error("La version de reglas no coincide.")
+		return false
 
 	# Comprobar dimensiones e identidad.
 	if reconstruido.id_tablero != catalogo.id_tablero:
@@ -146,12 +171,13 @@ static func ejecutar() -> bool:
 
 	for indice in range(25):
 		if recorrido_reconstruido[indice] != recorrido[indice]:
-			push_error("No coincide la posicion del recorrido: " + str(indice))
+			push_error(
+				"No coincide la posicion del recorrido: " + str(indice)
+			)
 			return false
 
 	# Caso incorrecto 1: certificacion incompatible con la cobertura.
 	var catalogo_incoherente = TipoDatosCatalogo.new()
-	catalogo_incoherente.version_reglas = catalogo.version_reglas
 	catalogo_incoherente.id_tablero = catalogo.id_tablero
 	catalogo_incoherente.filas = catalogo.filas
 	catalogo_incoherente.columnas = catalogo.columnas
@@ -197,6 +223,48 @@ static func ejecutar() -> bool:
 
 	if resultado_casilla_repetida.aceptado:
 		push_error("Se ha aceptado una casilla repetida.")
+		return false
+
+	# Caso incorrecto 4: geometria no implementada.
+	var datos_geometria_invalida: Dictionary = (
+		datos_serializados.duplicate(true)
+	)
+	datos_geometria_invalida["id_geometria"] = "hexagonal"
+
+	var resultado_geometria_invalida = (
+		TipoSerializador.deserializar(datos_geometria_invalida)
+	)
+
+	if resultado_geometria_invalida.aceptado:
+		push_error("Se ha aceptado una geometria no implementada.")
+		return false
+
+	# Caso incorrecto 5: reglas no implementadas.
+	var datos_reglas_invalidas: Dictionary = (
+		datos_serializados.duplicate(true)
+	)
+	datos_reglas_invalidas["id_reglas_movimiento"] = "reglas_futuras"
+
+	var resultado_reglas_invalidas = (
+		TipoSerializador.deserializar(datos_reglas_invalidas)
+	)
+
+	if resultado_reglas_invalidas.aceptado:
+		push_error("Se han aceptado reglas no implementadas.")
+		return false
+
+	# Caso incorrecto 6: formato antiguo incompatible.
+	var datos_formato_antiguo: Dictionary = (
+		datos_serializados.duplicate(true)
+	)
+	datos_formato_antiguo["version_formato"] = 1
+
+	var resultado_formato_antiguo = (
+		TipoSerializador.deserializar(datos_formato_antiguo)
+	)
+
+	if resultado_formato_antiguo.aceptado:
+		push_error("Se ha aceptado un formato antiguo.")
 		return false
 
 	print("RESULTADO: CORRECTO")
